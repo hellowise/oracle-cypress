@@ -37,3 +37,28 @@ Cypress.Commands.add('graphdata', () => {
         })
     return cy.wrap(items)
 })
+
+Cypress.Commands.add('tabledata', () => {
+    const items = []
+    const goToNextPage = () => {
+        cy.get('.js-pg-next')
+            .then($el => {
+                cy.get('.a-GV-bdy .a-GV-table tbody tr').each(row => {
+                    const elements = row.children().slice(2) // skip the two 'button' columns
+                    items.push({
+                        'order': Number(elements[0].innerText),
+                        'customer': elements[3].innerText,
+                        'product': elements[1].innerText,
+                        'quantity': Number(elements[2].innerText)
+                    })
+                })
+
+                if ($el.attr('disabled') === 'disabled')
+                    return
+
+                cy.get('.js-pg-next').click().then(goToNextPage)
+            })
+    }
+    goToNextPage()
+    return cy.wrap(items)
+})
