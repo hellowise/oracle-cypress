@@ -9,10 +9,20 @@ module.exports = defineConfig({
     defaultCommandTimeout: 5000,
     requestTimeout: 10000,
     setupNodeEvents(on, config) {
-      // implement node event listeners here
+      on('before:browser:launch', (browser, launchOptions) => {
+        if (browser.name === 'chrome' && browser.isHeadless) {
+          launchOptions.args = launchOptions.args.map((arg) => {
+            if (arg === '--headless') {
+              return '--headless=new'
+            }
+            return arg
+          })
+        }
+        return launchOptions
+      })
     },
     env: {
-      // public env variables here
+      CYPRESS_CRASH_REPORTS: 0
     }
   },
 });

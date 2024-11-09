@@ -111,5 +111,6 @@ Cypress.Commands.add('updatedata', (order, column, value) => {
 
     cy.wait(500)
     cy.get('footer .t-Region-buttons-right button').click()
+    //cy.get('#wwvFlowForm').submit()
     cy.wait(500)
 })
