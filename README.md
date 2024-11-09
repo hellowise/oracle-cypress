@@ -4,6 +4,15 @@ Cypress project for Oracle hiring process
 ### Installing
 Run npm install
 
+### Setup local env
+Create the cypress.env.json file in the root dir, with this content:
+```json
+{
+    "email": "<your e-mail>",
+    "password": "<your password>"
+}
+```
+
 ### Running
 npx cypress run --headless --browser chrome
 
