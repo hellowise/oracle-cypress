@@ -28,7 +28,7 @@ Cypress.Commands.add('graphdata', () => {
                     } else if (text.startsWith('Group')) {
                         entry['product'] = text.replace('Group', '')
                     } else if (text.startsWith('Value')) {
-                        entry['quantity'] = text.replace('Value', '')
+                        entry['quantity'] = Number(text.replace('Value', ''))
                     }
                 })
 
@@ -39,7 +39,9 @@ Cypress.Commands.add('graphdata', () => {
 })
 
 Cypress.Commands.add('tabledata', () => {
+    cy.get('.js-pg-first').click({ force: true }) // ensure we are on the first page    
     const items = []
+
     const goToNextPage = () => {
         cy.get('.js-pg-next')
             .then($el => {
@@ -59,6 +61,55 @@ Cypress.Commands.add('tabledata', () => {
                 cy.get('.js-pg-next').click().then(goToNextPage)
             })
     }
+
     goToNextPage()
     return cy.wrap(items)
+})
+
+Cypress.Commands.add('updatedata', (order, column, value) => {
+    cy.get('.js-pg-first').click({ force: true }) // ensure we are on the first page
+
+    const goToNextPage = () => {
+        cy.get('.js-pg-next')
+            .then($el => {
+                let isCorrectPage = false
+                cy.get('.a-GV-bdy .a-GV-table tbody tr').each(row => {
+                    if (row.attr("data-id") == order) {
+                        isCorrectPage = true
+                    }
+                }).then(() => {
+                    if ($el.attr('disabled') === 'disabled' || isCorrectPage)
+                        return
+                    cy.get('.js-pg-next').click().then(goToNextPage)
+                })
+            })
+    }
+
+    goToNextPage()
+
+    if (column === 'quantity') {
+        cy.get(`.a-GV-bdy .a-GV-table tbody [data-id="${order}"] :nth-child(5)`)
+            .then(row => {
+                cy.wrap(row).dblclick().then(() => {
+                    cy.get(`.a-GV-bdy .a-GV-table tbody [data-id="${order}"] td .a-GV-columnItem input`).clear().type(`${value}{enter}`)
+                })
+            })
+    } else if (column === 'customer') {
+        cy.get(`.a-GV-bdy .a-GV-table tbody [data-id="${order}"] :nth-child(6)`)
+            .then(row => {
+                cy.wrap(row).dblclick().then(() => {
+                    cy.get(`.a-GV-bdy .a-GV-table tbody [data-id="${order}"] td .a-GV-columnItem button`)
+                        .click()
+                        .then(() => {
+                            // cy.get('.a-PopupLOV-searchBar .a-PopupLOV-search').clear().type(`${value}{enter}`)
+                            // cy.get('.a-PopupLOV-searchBar button').click({ force: true })
+                            cy.get('.ui-dialog .a-PopupLOV-results ul li').contains(value).click()
+                        })
+                })
+            })
+    }
+
+    cy.wait(500)
+    cy.get('footer .t-Region-buttons-right button').click()
+    cy.wait(500)
 })

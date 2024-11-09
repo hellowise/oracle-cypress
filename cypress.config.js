@@ -5,6 +5,7 @@ module.exports = defineConfig({
     baseUrl: 'https://apex.oracle.com',
     watchForFileChanges: false,
     screenshotOnRunFailure: true,
+    chromeWebSecurity: false,
     defaultCommandTimeout: 5000,
     requestTimeout: 10000,
     setupNodeEvents(on, config) {
