@@ -12,9 +12,16 @@ Cypress.Commands.add('login', (email, password) => {
     // Wait for login
     cy.wait('@login')
     cy.url().should('contain', 'home?session=')
+
+    // Wait for table & graph data to load
+    cy.wait('@data')
+    cy.get('.a-GV-bdy .a-GV-table').should('be.visible') // verify that the table is visible
+    cy.get('svg').should('be.visible') // verify that the graph is visible
 });
 
 Cypress.Commands.add('graphdata', () => {
+    cy.wait(1000) // wait for load -- lazy
+
     const items = []
     cy.get('div[class*="oj-chart"] svg g[fill] *')
         .each(($el) => {
@@ -35,6 +42,7 @@ Cypress.Commands.add('graphdata', () => {
                 items.push(entry)
             })
         })
+
     return cy.wrap(items)
 })
 
@@ -109,8 +117,7 @@ Cypress.Commands.add('updatedata', (order, column, value) => {
             })
     }
 
-    cy.wait(500)
+    cy.wait(1000)
     cy.get('footer .t-Region-buttons-right button').click()
-    //cy.get('#wwvFlowForm').submit()
-    cy.wait(500)
+    cy.wait(4000)
 })
