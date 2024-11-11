@@ -24,6 +24,7 @@ module.exports = defineConfig({
     },
     env: {
       CYPRESS_CRASH_REPORTS: 0,
+      workspace: 'hellowise',
       orderId: 10,
       quantity: 30,
       customer: 'Deli'

@@ -3,7 +3,7 @@ import commonSelectors from '../support/selectors/common.js'
 
 Cypress.Commands.add('login', (email, password) => {
     // Loads the webpage
-    cy.visit('/pls/apex/r/hellowise/qa-application')
+    cy.visit(`/pls/apex/r/${Cypress.env('workspace')}/qa-application`)
 
     // Login
     cy.get(loginSelectors.username).clear().type(email)
