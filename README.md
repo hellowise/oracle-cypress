@@ -38,7 +38,7 @@ npx cypress run --headless --browser chrome
 This will run the tests and change the values to those specified in the env file.
 The project was built with chromium in mind (refer to "Issues" for more info), so to ensure successful runs, I recommend using chrome.
 
-#### Env variables
+### Env variables
 The following variables should be changed according to the desired values.
 Workspace depends on user, the other values will be used for the test data and can be kept as the default value.
 
@@ -54,11 +54,11 @@ You can overwrite env variables at execution time with the env param:
 npx cypress run --headless --browser chrome --env orderId=12
 ```
 
-#### Issues
-I had some issues with the save function in this app, the save POST request gets blocked with "Error: read ECONNRESET", thus preventing me from running the
+### Issues
+- I had some issues with the save function in this app, the save POST request gets blocked with "Error: read ECONNRESET", thus preventing me from running the
 tests properly. However, a similar issue has been discussed here https://github.com/cypress-io/cypress/issues/27804, which is why the tests will only work with chrome for now (at least on my end).
 
-I decided to use https://github.com/dmtrKovalenko/cypress-real-events to improve button click functionality (only works for chromium based browsers), to make it less simulated, seen as the webpage responded better to this.
+- I decided to use https://github.com/dmtrKovalenko/cypress-real-events to improve button click functionality (only works for chromium based browsers), to make it less simulated, seen as the webpage responded better to this.
 I encountered a bug when I wanted to update the customer part, using a normal click would somehow not reflect the selected customer choice, thus on save, it would not work.
 
-After setting the values to the ones specified, the app will stay in that state unless reverted manually. Its possible to have a method that will set those values back to default, or even use random generated values for the tests to avoid this from happening, however, it was not implemented in this case because it wasn't clear to me if it was important in the scope or not.
+- After setting the values to the ones specified, the app will stay in that state unless reverted manually. Its possible to have a method that will set those values back to default, or even use random generated values for the tests to avoid this from happening, however, it was not implemented in this case because it wasn't clear to me if it was important in the scope or not.
