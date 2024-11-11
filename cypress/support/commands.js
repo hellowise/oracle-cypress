@@ -7,7 +7,7 @@ Cypress.Commands.add('login', (email, password) => {
     // Login
     cy.get(loginSelectors.username).clear().type(email)
     cy.get(loginSelectors.password).clear().type(password)
-    cy.get(loginSelectors.signIn).click()
+    cy.get(loginSelectors.signIn).realClick()
 
     // Wait for login
     cy.wait('@login')
@@ -23,10 +23,11 @@ Cypress.Commands.add('login', (email, password) => {
 Cypress.Commands.add('save', () => {
     cy.wait(1000)
     cy.wait('@data')
-    cy.get('footer .t-Region-buttons-right button').click()
+    cy.get('footer .t-Region-buttons-right button').realClick()
     cy.wait('@login')
     cy.wait('@data')
     cy.get('.u-Processing', { timeout: 10000 }).should('not.exist')
+    cy.wait(5000)
 })
 
 Cypress.Commands.add('graphdata', () => {
@@ -57,7 +58,7 @@ Cypress.Commands.add('graphdata', () => {
 })
 
 Cypress.Commands.add('tabledata', () => {
-    cy.get('.js-pg-first').click({ force: true }) // ensure we are on the first page    
+    cy.get('.js-pg-first').realClick() // ensure we are on the first page    
     const items = []
 
     const goToNextPage = () => {
@@ -76,7 +77,7 @@ Cypress.Commands.add('tabledata', () => {
                 if ($el.attr('disabled') === 'disabled')
                     return
 
-                cy.get('.js-pg-next').click().then(goToNextPage)
+                cy.get('.js-pg-next').realClick().then(goToNextPage)
             })
     }
 
@@ -85,7 +86,7 @@ Cypress.Commands.add('tabledata', () => {
 })
 
 Cypress.Commands.add('updatedata', (order, column, value) => {
-    cy.get('.js-pg-first').click({ force: true }) // ensure we are on the first page
+    cy.get('.js-pg-first').realClick() // ensure we are on the first page
 
     const goToNextPage = () => {
         cy.get('.js-pg-next')
@@ -98,7 +99,7 @@ Cypress.Commands.add('updatedata', (order, column, value) => {
                 }).then(() => {
                     if ($el.attr('disabled') === 'disabled' || isCorrectPage)
                         return
-                    cy.get('.js-pg-next').click().then(goToNextPage)
+                    cy.get('.js-pg-next').realClick().then(goToNextPage)
                 })
             })
     }
@@ -117,17 +118,17 @@ Cypress.Commands.add('updatedata', (order, column, value) => {
     } else if (column === 'customer') {
         cy.get(`.a-GV-bdy .a-GV-table tbody [data-id="${order}"] :nth-child(6)`)
             .then(row => {
-                cy.wrap(row).dblclick().then(() => {
+                cy.wrap(row).realClick({ clickCount: 2 }).then(() => {
                     cy.get(`.a-GV-bdy .a-GV-table tbody [data-id="${order}"] td .a-GV-columnItem button`)
-                        .click()
+                        .realClick()
                         .then(() => {
-                            // cy.get('.a-PopupLOV-searchBar .a-PopupLOV-search').clear().type(`${value}{enter}`)
-                            // cy.get('.a-PopupLOV-searchBar button').click({ force: true })
                             cy.wait('@data')
-                            cy.get('.u-Processing', { timeout: 10000 }).should('not.exist').then(() => {
-                                cy.get('.ui-dialog .a-PopupLOV-results ul li').contains(value).click().then(() => {
-                                    cy.get('.ui-dialog', { timeout: 10000 }).should('not.be.visible').then(() => {
-                                        cy.save()
+                            cy.get('.ui-dialog .a-IconList').find('li').its('length').should('be.gte', 1).then(() => {
+                                cy.get('.u-Processing', { timeout: 10000 }).should('not.exist').then(() => {
+                                    cy.get('li.a-IconList-item').contains(value).realClick().then(() => {
+                                        cy.get('.ui-dialog', { timeout: 10000 }).should('not.be.visible').then(() => {
+                                            cy.save()
+                                        })
                                     })
                                 })
                             })

@@ -15,7 +15,7 @@ describe('validate user input', () => {
     })
 
     const orderId = 10
-    const quantity = 35
+    const quantity = 30
 
     cy.updatedata(orderId, 'quantity', quantity).then(() => {
       cy.graphdata().then(data => {

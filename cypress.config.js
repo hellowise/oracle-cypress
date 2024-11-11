@@ -4,6 +4,7 @@ module.exports = defineConfig({
   e2e: {
     baseUrl: 'https://apex.oracle.com',
     watchForFileChanges: false,
+    video: true,
     screenshotOnRunFailure: true,
     chromeWebSecurity: false,
     defaultCommandTimeout: 5000,
