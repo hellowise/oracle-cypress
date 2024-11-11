@@ -1,26 +1,28 @@
 describe('validate user input', () => {
-  it('alter quantity for order', () => {
+
+  const orderId = Cypress.env('orderId')
+  const quantity = Cypress.env('quantity')
+  const customer = Cypress.env('customer')
+
+  it('Alter quantity for order', () => {
     let graphDataBefore = []
     let graphDataAfter = []
 
     let tableDataBefore = []
     let tableDataAfter = []
 
-    cy.graphdata().then(data => {
+    cy.graphData().then(data => {
       graphDataBefore = data
     })
 
-    cy.tabledata().then(data => {
+    cy.tableData().then(data => {
       tableDataBefore = data
     })
 
-    const orderId = 10
-    const quantity = 30
-
-    cy.updatedata(orderId, 'quantity', quantity).then(() => {
-      cy.graphdata().then(data => {
+    cy.updateData(orderId, 'quantity', quantity).then(() => {
+      cy.graphData().then(data => {
         graphDataAfter = data
-        cy.tabledata().then(data => {
+        cy.tableData().then(data => {
           tableDataAfter = data
 
           const entryOld = tableDataBefore.find(o => o.order == orderId)
@@ -43,37 +45,37 @@ describe('validate user input', () => {
             .map(o => o.quantity)
             .reduce((a, b) => a + b, 0)
 
-          expect(entryNewSum == entryOldSum).to.be.false
-          expect(graphQuantityBefore == graphQuantityAfter).to.be.false
-          expect(entryNew.quantity == quantity).to.be.true
-          expect(graphQuantityAfter == entryNewSum).to.be.true
+          expect(entryNewSum).to.not.equal(entryOldSum, `Expected entryNewSum to be different from entryOldSum. Before: ${entryOldSum}, After: ${entryNewSum}`)
+
+          expect(graphQuantityBefore).to.not.equal(graphQuantityAfter, `Expected graphQuantityBefore to be different from graphQuantityAfter. Before: ${graphQuantityBefore}, After: ${graphQuantityAfter}`)
+
+          expect(entryNew.quantity).to.equal(quantity, `Expected entryNew.quantity to be equal to ${quantity}. Actual value: ${entryNew.quantity}`)
+
+          expect(graphQuantityAfter).to.equal(entryNewSum, `Expected graphQuantityAfter to be equal to entryNewSum. Expected: ${entryNewSum}, Actual: ${graphQuantityAfter}`)
         })
       })
     })
-  });
+  })
 
-  it('alter customer for order', () => {
+  it('Alter customer for order', () => {
     let graphDataBefore = []
     let graphDataAfter = []
 
     let tableDataBefore = []
     let tableDataAfter = []
 
-    cy.graphdata().then(data => {
+    cy.graphData().then(data => {
       graphDataBefore = data
     })
 
-    cy.tabledata().then(data => {
+    cy.tableData().then(data => {
       tableDataBefore = data
     })
 
-    const orderId = 10
-    const customer = 'Deli'
-
-    cy.updatedata(orderId, 'customer', customer).then(() => {
-      cy.graphdata().then(data => {
+    cy.updateData(orderId, 'customer', customer).then(() => {
+      cy.graphData().then(data => {
         graphDataAfter = data
-        cy.tabledata().then(data => {
+        cy.tableData().then(data => {
           tableDataAfter = data
 
           const entryOld = tableDataBefore.find(o => o.order == orderId)
@@ -88,11 +90,14 @@ describe('validate user input', () => {
             .map(o => o.quantity)
             .reduce((a, b) => a + b, 0)
 
-          expect(entryNew.customer !== entryOld.customer).to.be.true
-          expect(entryNew.customer == customer).to.be.true
-          expect(graphItemsForCustomerBefore !== graphItemsForCustomerAfter).to.be.true
+          expect(entryNew.customer).to.not.equal(entryOld.customer, `Expected customer value to be different. New customer: ${entryNew.customer}, Old customer: ${entryOld.customer}`)
+
+          expect(entryNew.customer).to.equal(customer, `Expected New customer to be equal to ${customer}. Actual value: ${entryNew.customer}`)
+
+          expect(graphItemsForCustomerBefore).to.not.equal(graphItemsForCustomerAfter, `Expected graphItemsForCustomerBefore to be different from graphItemsForCustomerAfter. 
+            Before: ${graphItemsForCustomerBefore}, After: ${graphItemsForCustomerAfter}`)
         })
       })
     })
-  });
-});
+  })
+})

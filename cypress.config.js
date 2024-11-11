@@ -1,4 +1,4 @@
-const { defineConfig } = require("cypress");
+const { defineConfig } = require("cypress")
 
 module.exports = defineConfig({
   e2e: {
@@ -23,7 +23,11 @@ module.exports = defineConfig({
       })
     },
     env: {
-      CYPRESS_CRASH_REPORTS: 0
+      CYPRESS_CRASH_REPORTS: 0,
+      orderId: 10,
+      quantity: 30,
+      customer: 'Deli'
+      // Overwrite env variables with param --env orderId=12 etc
     }
   },
-});
+})

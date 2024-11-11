@@ -1,4 +1,5 @@
-import loginSelectors from '../support/selectors/login.js';
+import loginSelectors from '../support/selectors/login.js'
+import commonSelectors from '../support/selectors/common.js'
 
 Cypress.Commands.add('login', (email, password) => {
     // Loads the webpage
@@ -15,31 +16,34 @@ Cypress.Commands.add('login', (email, password) => {
 
     // Wait for table & graph data to load
     cy.wait('@data')
-    cy.get('.a-GV-bdy .a-GV-table').should('be.visible') // verify that the table is visible
+    cy.get(commonSelectors.table).should('be.visible') // verify that the table is visible
     cy.get('svg').should('be.visible') // verify that the graph is visible
-    cy.get('.u-Processing', { timeout: 10000 }).should('not.exist')
-});
-
-Cypress.Commands.add('save', () => {
-    cy.wait(1000)
-    cy.wait('@data')
-    cy.get('footer .t-Region-buttons-right button').realClick()
-    cy.wait('@login')
-    cy.wait('@data')
-    cy.get('.u-Processing', { timeout: 10000 }).should('not.exist')
-    cy.wait(5000)
+    cy.waitForSpinner()
 })
 
-Cypress.Commands.add('graphdata', () => {
-    cy.wait(2000) // wait for load -- lazy
+Cypress.Commands.add('save', () => {
+    cy.wait('@data')
+    cy.get(commonSelectors.saveButton).realClick()
+    cy.wait('@login')
+    cy.wait('@data')
+    cy.waitForSpinner()
+})
+
+Cypress.Commands.add('waitForSpinner', () => {
+    return cy.get(commonSelectors.processingSpinner, { timeout: 10000 }).should('not.exist')
+})
+
+Cypress.Commands.add('graphData', () => {
+    cy.waitForSpinner()
+    cy.wait(1000) // seems tricky to wait for graph to be fully loaded
 
     const items = []
-    cy.get('div[class*="oj-chart"] svg g[fill] *')
+    cy.get(commonSelectors.graphDots)
         .each(($el) => {
             cy.wrap($el).click({ force: true }).then(() => {
                 const entry = {}
 
-                cy.get('.oj-dvt-datatip-table tr').each(row => {
+                cy.get(commonSelectors.graphTooltips).each(row => {
                     const text = row.text()
                     if (text.startsWith('Series')) {
                         entry['customer'] = text.replace('Series', '')
@@ -57,14 +61,14 @@ Cypress.Commands.add('graphdata', () => {
     return cy.wrap(items)
 })
 
-Cypress.Commands.add('tabledata', () => {
-    cy.get('.js-pg-first').realClick() // ensure we are on the first page    
+Cypress.Commands.add('tableData', () => {
+    cy.get(commonSelectors.pageFirst).realClick() // ensure we are on the first page    
     const items = []
 
     const goToNextPage = () => {
-        cy.get('.js-pg-next')
+        cy.get(commonSelectors.pageNext)
             .then($el => {
-                cy.get('.a-GV-bdy .a-GV-table tbody tr').each(row => {
+                cy.get(commonSelectors.tableRows).each(row => {
                     const elements = row.children().slice(2) // skip the two 'button' columns
                     items.push({
                         'order': Number(elements[0].innerText),
@@ -77,7 +81,7 @@ Cypress.Commands.add('tabledata', () => {
                 if ($el.attr('disabled') === 'disabled')
                     return
 
-                cy.get('.js-pg-next').realClick().then(goToNextPage)
+                cy.get(commonSelectors.pageNext).realClick().then(goToNextPage)
             })
     }
 
@@ -85,21 +89,21 @@ Cypress.Commands.add('tabledata', () => {
     return cy.wrap(items)
 })
 
-Cypress.Commands.add('updatedata', (order, column, value) => {
-    cy.get('.js-pg-first').realClick() // ensure we are on the first page
+Cypress.Commands.add('updateData', (order, column, value) => {
+    cy.get(commonSelectors.pageFirst).realClick() // ensure we are on the first page
 
     const goToNextPage = () => {
-        cy.get('.js-pg-next')
+        cy.get(commonSelectors.pageNext)
             .then($el => {
                 let isCorrectPage = false
-                cy.get('.a-GV-bdy .a-GV-table tbody tr').each(row => {
+                cy.get(commonSelectors.tableRows).each(row => {
                     if (row.attr("data-id") == order) {
                         isCorrectPage = true
                     }
                 }).then(() => {
                     if ($el.attr('disabled') === 'disabled' || isCorrectPage)
                         return
-                    cy.get('.js-pg-next').realClick().then(goToNextPage)
+                    cy.get(commonSelectors.pageNext).realClick().then(goToNextPage)
                 })
             })
     }
@@ -107,26 +111,26 @@ Cypress.Commands.add('updatedata', (order, column, value) => {
     goToNextPage()
 
     if (column === 'quantity') {
-        cy.get(`.a-GV-bdy .a-GV-table tbody [data-id="${order}"] :nth-child(5)`)
+        cy.get(commonSelectors.quantityColumnForOrder(order))
             .then(row => {
-                cy.wrap(row).dblclick().then(() => {
-                    cy.get(`.a-GV-bdy .a-GV-table tbody [data-id="${order}"] td .a-GV-columnItem input`).clear().type(`${value}{enter}`).then(() => {
+                cy.wrap(row).realClick({ clickCount: 2 }).then(() => {
+                    cy.get(commonSelectors.quantityInputForOrder(order)).clear().type(`${value}{enter}`).then(() => {
                         cy.save()
                     })
                 })
             })
     } else if (column === 'customer') {
-        cy.get(`.a-GV-bdy .a-GV-table tbody [data-id="${order}"] :nth-child(6)`)
+        cy.get(commonSelectors.customerInputForOrder(order))
             .then(row => {
                 cy.wrap(row).realClick({ clickCount: 2 }).then(() => {
-                    cy.get(`.a-GV-bdy .a-GV-table tbody [data-id="${order}"] td .a-GV-columnItem button`)
+                    cy.get(commonSelectors.customerOpenItemList(order))
                         .realClick()
                         .then(() => {
                             cy.wait('@data')
-                            cy.get('.ui-dialog .a-IconList').find('li').its('length').should('be.gte', 1).then(() => {
-                                cy.get('.u-Processing', { timeout: 10000 }).should('not.exist').then(() => {
-                                    cy.get('li.a-IconList-item').contains(value).realClick().then(() => {
-                                        cy.get('.ui-dialog', { timeout: 10000 }).should('not.be.visible').then(() => {
+                            cy.get(commonSelectors.dialogIconList).find('li').its('length').should('be.gte', 1).then(() => {
+                                cy.waitForSpinner().then(() => {
+                                    cy.get(commonSelectors.dialogListItems).contains(value).realClick().then(() => {
+                                        cy.get(commonSelectors.dialog, { timeout: 10000 }).should('not.be.visible').then(() => {
                                             cy.save()
                                         })
                                     })
