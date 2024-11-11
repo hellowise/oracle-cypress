@@ -26,8 +26,8 @@ module.exports = defineConfig({
       CYPRESS_CRASH_REPORTS: 0,
       workspace: 'hellowise',
       orderId: 10,
-      quantity: 30,
-      customer: 'Deli'
+      quantity: 65,
+      customer: 'Acme Store'
       // Overwrite env variables with param --env orderId=12 etc
     }
   },

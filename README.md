@@ -44,10 +44,10 @@ Workspace depends on user, the other values will be used for the test data and c
 
 - workspace: 'hellowise',
 - orderId: 10,
-- quantity: 30,
-- customer: 'Deli'
+- quantity: 65,
+- customer: 'Acme Store'
 
-Example: Will change order 10 to quantity 30 and customer Deli.
+Example: Will change order 10 to quantity 65 and customer Acme Store.
 You can overwrite env variables at execution time with the env param:
 
 ```
