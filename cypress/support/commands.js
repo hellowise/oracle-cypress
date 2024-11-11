@@ -17,10 +17,20 @@ Cypress.Commands.add('login', (email, password) => {
     cy.wait('@data')
     cy.get('.a-GV-bdy .a-GV-table').should('be.visible') // verify that the table is visible
     cy.get('svg').should('be.visible') // verify that the graph is visible
+    cy.get('.u-Processing', { timeout: 10000 }).should('not.exist')
 });
 
+Cypress.Commands.add('save', () => {
+    cy.wait(1000)
+    cy.wait('@data')
+    cy.get('footer .t-Region-buttons-right button').click()
+    cy.wait('@login')
+    cy.wait('@data')
+    cy.get('.u-Processing', { timeout: 10000 }).should('not.exist')
+})
+
 Cypress.Commands.add('graphdata', () => {
-    cy.wait(1000) // wait for load -- lazy
+    cy.wait(2000) // wait for load -- lazy
 
     const items = []
     cy.get('div[class*="oj-chart"] svg g[fill] *')
@@ -99,7 +109,9 @@ Cypress.Commands.add('updatedata', (order, column, value) => {
         cy.get(`.a-GV-bdy .a-GV-table tbody [data-id="${order}"] :nth-child(5)`)
             .then(row => {
                 cy.wrap(row).dblclick().then(() => {
-                    cy.get(`.a-GV-bdy .a-GV-table tbody [data-id="${order}"] td .a-GV-columnItem input`).clear().type(`${value}{enter}`)
+                    cy.get(`.a-GV-bdy .a-GV-table tbody [data-id="${order}"] td .a-GV-columnItem input`).clear().type(`${value}{enter}`).then(() => {
+                        cy.save()
+                    })
                 })
             })
     } else if (column === 'customer') {
@@ -111,13 +123,16 @@ Cypress.Commands.add('updatedata', (order, column, value) => {
                         .then(() => {
                             // cy.get('.a-PopupLOV-searchBar .a-PopupLOV-search').clear().type(`${value}{enter}`)
                             // cy.get('.a-PopupLOV-searchBar button').click({ force: true })
-                            cy.get('.ui-dialog .a-PopupLOV-results ul li').contains(value).click()
+                            cy.wait('@data')
+                            cy.get('.u-Processing', { timeout: 10000 }).should('not.exist').then(() => {
+                                cy.get('.ui-dialog .a-PopupLOV-results ul li').contains(value).click().then(() => {
+                                    cy.get('.ui-dialog', { timeout: 10000 }).should('not.be.visible').then(() => {
+                                        cy.save()
+                                    })
+                                })
+                            })
                         })
                 })
             })
     }
-
-    cy.wait(1000)
-    cy.get('footer .t-Region-buttons-right button').click()
-    cy.wait(4000)
 })

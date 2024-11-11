@@ -14,7 +14,7 @@ describe('validate user input', () => {
       tableDataBefore = data
     })
 
-    const orderId = 7
+    const orderId = 10
     const quantity = 35
 
     cy.updatedata(orderId, 'quantity', quantity).then(() => {
@@ -67,7 +67,7 @@ describe('validate user input', () => {
       tableDataBefore = data
     })
 
-    const orderId = 12
+    const orderId = 10
     const customer = 'Deli'
 
     cy.updatedata(orderId, 'customer', customer).then(() => {
