@@ -37,6 +37,7 @@ npx cypress run --headless --browser chrome
 
 This will run the tests and change the values to those specified in the env file.
 The project was built with chromium in mind (refer to "Issues" for more info), so to ensure successful runs, I recommend using chrome.
+Cypress is configured to output a video of the test execution after each run, you can use this to see the detailed steps.
 
 ### Env variables
 The following variables should be changed according to the desired values.
